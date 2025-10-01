@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Craft Listings</h2>
+  <a href="{{ url_for('listings.new_listing') }}" class="btn btn-primary mb-3">+ Post New Craft</a>
+  
+  {% for listing in listings %}
+    <div class="card mb-3">
+      <div class="card-body">
+        <h5 class="card-title">{{ listing.title }}</h5>
+        <p class="card-text text-muted">{{ listing.category }}</p>
+        <p>{{ listing.description[:100] }}...</p>
+        <a href="{{ url_for('listings.view_listing', listing_id=listing.id) }}" class="btn btn-sm btn-outline-info">View</a>
+      </div>
+    </div>
+  {% else %}
+    <p>No crafts posted yet. Be the first!</p>
+  {% endfor %}
+</div>
+{% endblock %}

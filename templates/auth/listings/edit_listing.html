@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Edit Craft</h2>
+  <form method="POST">
+    <div class="mb-3">
+      <label>Title</label>
+      <input type="text" name="title" value="{{ listing.title }}" class="form-control" required>
+    </div>
+    <div class="mb-3">
+      <label>Category</label>
+      <input type="text" name="category" value="{{ listing.category }}" class="form-control" required>
+    </div>
+    <div class="mb-3">
+      <label>Description</label>
+      <textarea name="description" class="form-control" rows="4" required>{{ listing.description }}</textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Update</button>
+  </form>
+</div>
+{% endblock %}
