@@ -1,0 +1,7 @@
+Flask==2.3.2
+Flask-SQLAlchemy==3.0.5
+Flask-Login==0.6.3
+Flask-Migrate==4.0.5
+Werkzeug==2.3.6
+email-validator==2.0.0.post2   # for validating emails
+Pillow==10.0.0                 # for image uploads
