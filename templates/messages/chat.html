@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Chat with {{ other_user.username }}</h2>
+
+<div class="chat-box">
+    {% for msg in messages %}
+        <div class="message {% if msg.sender_id == current_user.id %}self{% else %}other{% endif %}">
+            <p>{{ msg.body }}</p>
+            <small>{{ msg.timestamp.strftime('%b %d, %H:%M') }}</small>
+        </div>
+    {% endfor %}
+</div>
+
+<form method="POST">
+    {{ form.hidden_tag() }}
+    {{ form.body(class="form-control", rows="3") }}
+    <br>
+    {{ form.submit(class="btn btn-primary") }}
+</form>
+
+<style>
+.chat-box {
+    height: 400px;
+    overflow-y: scroll;
+    padding: 10px;
+    border: 1px solid #ddd;
+    background: #fafafa;
+    margin-bottom: 20px;
+}
+.message {
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    width: fit-content;
+    max-width: 70%;
+}
+.self {
+    background: #d1ffd1;
+    margin-left: auto;
+}
+.other {
+    background: #e5e5ff;
+}
+</style>
+
+{% endblock %}

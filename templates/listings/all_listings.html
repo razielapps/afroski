@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container mt-4">
+    <h2 class="mb-4">Explore Crafts & Skills</h2>
+
+    {% if listings %}
+    <div class="row">
+
+        {% for listing in listings %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+
+                {% if listing.image %}
+                    <img src="{{ url_for('static', filename='uploads/listings/' ~ listing.image) }}"
+                         class="card-img-top" style="height:220px; object-fit:cover;">
+                {% else %}
+                    <img src="{{ url_for('static', filename='default.jpg') }}"
+                         class="card-img-top" style="height:220px; object-fit:cover;">
+                {% endif %}
+
+                <div class="card-body">
+                    <h5 class="card-title">{{ listing.title }}</h5>
+                    <p class="text-muted mb-1">{{ listing.category }}</p>
+
+                    <p class="card-text" style="font-size:14px;">
+                        {{ listing.description[:100] }}...
+                    </p>
+
+                    <a href="{{ url_for('listings.view_listing', listing_id=listing.id) }}"
+                       class="btn btn-primary btn-sm">
+                       View Craft
+                    </a>
+                </div>
+
+            </div>
+        </div>
+        {% endfor %}
+
+    </div>
+    {% else %}
+        <p>No crafts available yet.</p>
+    {% endif %}
+</div>
+
+{% endblock %}

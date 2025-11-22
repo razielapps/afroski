@@ -2,11 +2,12 @@ from flask import Blueprint, render_template, redirect, url_for, flash, request,
 from flask_login import login_required, current_user
 from app import db
 from utils import save_image
-from app.models import Listing,db
+from app.models import Listing,db,User,Message
+from forms import MessageForm
 
 listings_bp = Blueprint("listings", __name__, template_folder="templates/listings")
 
-@listings_bp.route("/")
+@listings_bp.route("/listings")
 def all_listings():
     listings = Listing.query.order_by(Listing.created_at.desc()).all()
     return render_template("listings/all_listings.html", listings=listings)
@@ -90,3 +91,69 @@ def delete_listing(listing_id):
     db.session.commit()
     flash("Listing deleted.", "danger")
     return redirect(url_for("listings.all_listings"))
+
+
+
+@app.route("/messages/<int:user_id>", methods=["GET", "POST"])
+@login_required
+def chat(user_id):
+    other_user = User.query.get_or_404(user_id)
+    form = MessageForm()
+
+    # Fetch conversation
+    messages = Message.query.filter(
+        ((Message.sender_id == current_user.id) & (Message.receiver_id == user_id)) |
+        ((Message.sender_id == user_id) & (Message.receiver_id == current_user.id))
+    ).order_by(Message.timestamp.asc()).all()
+
+    # Handle new message
+    if form.validate_on_submit():
+        msg = Message(
+            sender_id=current_user.id,
+            receiver_id=user_id,
+            body=form.body.data
+        )
+        db.session.add(msg)
+        db.session.commit()
+        return redirect(url_for("chat", user_id=user_id))
+
+    return render_template("messages/chat.html",
+                           other_user=other_user,
+                           messages=messages,
+                           form=form)
+
+@messages_bp.route("/messages")
+@login_required
+def inbox():
+    # Find all users who have chatted with the current user
+    sent_to = (
+        Message.query
+        .filter_by(sender_id=current_user.id)
+        .with_entities(Message.receiver_id)
+    )
+
+    received_from = (
+        Message.query
+        .filter_by(receiver_id=current_user.id)
+        .with_entities(Message.sender_id)
+    )
+
+    # Create a unique set of conversation partner IDs
+    user_ids = {uid for (uid,) in sent_to.union(received_from).all()}
+
+    # Fetch user objects for each ID
+    users = User.query.filter(User.id.in_(user_ids)).all()
+
+    # Last message for preview
+    last_messages = {}
+    for uid in user_ids:
+        last_messages[uid] = (
+            Message.query.filter(
+                ((Message.sender_id == current_user.id) & (Message.receiver_id == uid)) |
+                ((Message.sender_id == uid) & (Message.receiver_id == current_user.id))
+            )
+            .order_by(Message.timestamp.desc())
+            .first()
+        )
+
+    return render_template("messages/inbox.html", users=users, last_messages=last_messages)
